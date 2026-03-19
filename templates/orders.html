@@ -18,36 +18,44 @@
   .cart-btn{background:var(--primary)!important;color:white!important;font-weight:600!important;position:relative;}
   .cart-badge{position:absolute;top:-6px;right:-6px;background:var(--accent);color:var(--dark);border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
 
-  .page-header{padding:28px 32px 0;}
-  .page-header h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;}
-  .page-header p{color:var(--text-muted);margin-top:4px;}
+  .page-wrap{max-width:700px;margin:0 auto;padding:32px 20px;}
+  .page-header h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:4px;}
+  .page-header p{color:var(--text-muted);margin-bottom:24px;}
 
-  .section{padding:24px 32px;}
+  /* PHONE LOOKUP */
+  .lookup-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;}
+  .lookup-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:14px;}
+  .lookup-form{display:flex;gap:10px;}
+  .lookup-form input{flex:1;padding:11px 16px;background:var(--dark3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.92rem;outline:none;transition:border-color 0.2s;}
+  .lookup-form input:focus{border-color:var(--primary);}
+  .lookup-form button{padding:11px 22px;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;white-space:nowrap;}
+  .lookup-form button:hover{background:#e55a26;}
 
-  .order-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;transition:border-color 0.2s;}
+  /* ORDER CARDS */
+  .order-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;transition:border-color 0.2s;}
   .order-card:hover{border-color:var(--primary);}
-  .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
   .order-id{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;}
   .order-id span{color:var(--primary);}
-  .order-date{font-size:0.8rem;color:var(--text-muted);}
+  .order-date{font-size:0.78rem;color:var(--text-muted);}
   .status-badge{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid var(--green);padding:4px 12px;border-radius:20px;font-size:0.78rem;font-weight:700;}
-
   .order-address{background:var(--dark3);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:0.85rem;color:var(--text-muted);}
   .order-address strong{color:var(--text);}
-
-  .order-items-list{margin-bottom:12px;}
-  .order-item-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.85rem;}
+  .order-item-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:0.85rem;}
   .order-item-row:last-child{border-bottom:none;}
-  .order-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:2px solid var(--primary);}
+  .order-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:2px solid var(--primary);margin-top:8px;}
   .order-total{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--primary);}
   .cod-tag{font-size:0.78rem;color:var(--green);font-weight:600;}
 
-  .empty-state{text-align:center;padding:80px 20px;}
-  .empty-state h2{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:10px;}
-  .empty-state p{color:var(--text-muted);margin-bottom:24px;}
-  .btn-shop{display:inline-block;padding:13px 32px;background:var(--primary);color:white;border-radius:10px;text-decoration:none;font-weight:700;}
+  /* STATES */
+  .not-searched{text-align:center;padding:40px 20px;color:var(--text-muted);}
+  .not-searched .icon{font-size:3rem;margin-bottom:12px;}
+  .empty-state{text-align:center;padding:40px 20px;}
+  .empty-state h3{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:8px;}
+  .empty-state p{color:var(--text-muted);margin-bottom:20px;}
+  .btn-shop{display:inline-block;padding:12px 28px;background:var(--primary);color:white;border-radius:10px;text-decoration:none;font-weight:700;}
 
-  @media(max-width:600px){.navbar{padding:12px 16px;}.page-header{padding:20px 16px 0;}.section{padding:16px;}}
+  @media(max-width:600px){.navbar{padding:12px 16px;}.lookup-form{flex-direction:column;}}
 </style>
 </head>
 <body>
@@ -62,13 +70,30 @@
   </div>
 </nav>
 
-<div class="page-header">
-  <h1>📋 My Orders</h1>
-  <p>{{ orders|length }} order(s) placed</p>
-</div>
+<div class="page-wrap">
+  <div class="page-header">
+    <h1>📋 My Orders</h1>
+    <p>Enter your phone number to view your orders</p>
+  </div>
 
-<div class="section">
-  {% if orders %}
+  <!-- PHONE LOOKUP FORM -->
+  <div class="lookup-card">
+    <div class="lookup-title">🔍 Find Your Orders</div>
+    <form action="/orders" method="GET" class="lookup-form">
+      <input type="tel" name="phone" placeholder="Enter your phone number" value="{{ searched_phone or '' }}" required>
+      <button type="submit">View Orders</button>
+    </form>
+  </div>
+
+  <!-- RESULTS -->
+  {% if searched_phone is none %}
+    <div class="not-searched">
+      <div class="icon">📦</div>
+      <p>Enter your phone number above to see your orders</p>
+    </div>
+
+  {% elif orders %}
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px;">{{ orders|length }} order(s) found for {{ searched_phone }}</p>
     {% for order in orders %}
     <div class="order-card">
       <div class="order-header">
@@ -78,13 +103,11 @@
         </div>
         <span class="status-badge">✅ {{ order['status'] }}</span>
       </div>
-
       <div class="order-address">
         <strong>{{ order['name'] }}</strong> · {{ order['phone'] }}<br>
         {{ order['address'] }}, {{ order['city'] }} - {{ order['pincode'] }}
       </div>
-
-      <div class="order-items-list">
+      <div>
         {% for item in order['items'] %}
         <div class="order-item-row">
           <span>{{ item['product_name'] }}</span>
@@ -92,20 +115,20 @@
         </div>
         {% endfor %}
       </div>
-
       <div class="order-footer">
         <span class="cod-tag">💵 Cash on Delivery</span>
         <span class="order-total">₹{{ order['total'] }}</span>
       </div>
     </div>
     {% endfor %}
+
   {% else %}
-  <div class="empty-state">
-    <div style="font-size:4rem;margin-bottom:16px">📦</div>
-    <h2>No orders yet!</h2>
-    <p>Start shopping and place your first order</p>
-    <a href="/" class="btn-shop">🛍 Shop Now</a>
-  </div>
+    <div class="empty-state">
+      <div style="font-size:3rem;margin-bottom:12px">😕</div>
+      <h3>No orders found!</h3>
+      <p>No orders found for <strong>{{ searched_phone }}</strong></p>
+      <a href="/" class="btn-shop">🛍 Start Shopping</a>
+    </div>
   {% endif %}
 </div>
 </body>

@@ -470,12 +470,16 @@ def order_confirmed(order_id):
 
 @app.route("/orders")
 def orders():
+    phone = request.args.get("phone", "").strip()
     conn = db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM orders ORDER BY created_at DESC")
-    orders = [dict(o) for o in cur.fetchall()]
-    for o in orders:
-        cur.execute("SELECT * FROM order_items WHERE order_id=?", (o["id"],))
-        o["items"] = [dict(i) for i in cur.fetchall()]
+    orders = []
+    if phone:
+        # Filter by phone number - only show that user's orders
+        cur.execute("SELECT * FROM orders WHERE phone=? ORDER BY created_at DESC", (phone,))
+        orders = [dict(o) for o in cur.fetchall()]
+        for o in orders:
+            cur.execute("SELECT * FROM order_items WHERE order_id=?", (o["id"],))
+            o["items"] = [dict(i) for i in cur.fetchall()]
     conn.close()
-    return render_template("orders.html", orders=orders, cart_count=get_cart_count())
+    return render_template("orders.html", orders=orders, cart_count=get_cart_count(), phone=phone)
