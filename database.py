@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS cart(
 
 products = [
     # STATIONARY (50)
-    ("Bal Pen Blue",10,30,25,"ballpen_blue.jpg","Smooth writing ballpoint pen",4.5,"stationary"),
+    ("Ball Pen Blue",10,30,25,"ballpen_blue.jpg","Smooth writing ballpoint pen",4.5,"stationary"),
     ("Mechanical Pencil 0.7mm",12,36,25,"mechpencil.jpg","Precision mechanical pencil",4.2,"stationary"),
     ("HB Wood Pencil",5,15,25,"woodpencil.jpg","Standard HB pencil",4.4,"stationary"),
     ("Colored Pencils 12 Pack",25,50,25,"colorpencils.jpg","Artist quality colored pencils",4.3,"stationary"),
