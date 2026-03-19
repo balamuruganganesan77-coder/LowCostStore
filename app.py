@@ -333,8 +333,15 @@ def product(id):
     product['offer'] = get_offer(product['category'])
     cur.execute("SELECT * FROM products WHERE category=? AND id!=? LIMIT 4", (product['category'], id))
     rec = enrich([dict(r) for r in cur.fetchall()])
+
+    # Get reviews for this product
+    cur.execute("SELECT * FROM reviews WHERE product_id=? ORDER BY created_at DESC", (id,))
+    reviews = [dict(r) for r in cur.fetchall()]
+    avg_rating = round(sum(r['rating'] for r in reviews) / len(reviews), 1) if reviews else None
+
     conn.close()
-    return render_template("product.html", product=product, rec=rec, cart_count=get_cart_count())
+    return render_template("product.html", product=product, rec=rec,
+                           cart_count=get_cart_count(), reviews=reviews, avg_rating=avg_rating)
 
 @app.route("/search")
 def search():
@@ -389,6 +396,35 @@ def cart():
 @app.route("/admin")
 def admin():
     return render_template("admin.html", cart_count=get_cart_count())
+
+
+
+# ── REVIEW SYSTEM ──
+
+@app.route("/review/<int:product_id>", methods=["POST"])
+def add_review(product_id):
+    name    = request.form.get("reviewer_name", "").strip()
+    phone   = request.form.get("phone", "").strip()
+    rating  = request.form.get("rating", "5").strip()
+    comment = request.form.get("comment", "").strip()
+
+    if name and phone and comment and rating:
+        conn = db()
+        cur = conn.cursor()
+        # One review per phone per product
+        cur.execute("SELECT id FROM reviews WHERE product_id=? AND REPLACE(phone,' ','')=?",
+                    (product_id, phone.replace(" ","")))
+        existing = cur.fetchone()
+        if existing:
+            # Update existing review
+            cur.execute("UPDATE reviews SET rating=?, comment=?, reviewer_name=?, created_at=CURRENT_TIMESTAMP WHERE id=?",
+                        (int(rating), comment, name, existing["id"]))
+        else:
+            cur.execute("INSERT INTO reviews(product_id,reviewer_name,phone,rating,comment) VALUES(?,?,?,?,?)",
+                        (product_id, name, phone, int(rating), comment))
+        conn.commit()
+        conn.close()
+    return redirect(f"/product/{product_id}")
 
 if __name__ == "__main__":
     app.run(debug=True)

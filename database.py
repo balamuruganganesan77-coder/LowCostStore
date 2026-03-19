@@ -36,6 +36,19 @@ CREATE TABLE IF NOT EXISTS order_items(
 )
 """)
 
+cur.execute("""
+CREATE TABLE IF NOT EXISTS reviews(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER,
+    reviewer_name TEXT,
+    phone TEXT,
+    rating INTEGER,
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(product_id) REFERENCES products(id)
+)
+""")
+
 products = [
     # STATIONARY (50)
     ("Ball Pen Blue",10,0,100,"ballpen_blue.jpg","Smooth writing ballpoint pen",4.5,"stationary"),
