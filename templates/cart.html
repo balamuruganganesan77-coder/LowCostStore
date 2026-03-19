@@ -82,6 +82,7 @@
   </form>
   <div class="nav-links">
     <a href="/">Home</a>
+    <a href="/orders">My Orders</a>
     <a href="/admin">Admin</a>
     <a href="/cart" class="cart-btn">
       🛒 Cart
@@ -126,7 +127,7 @@
         <span>Total</span>
         <span>₹{{ total }}</span>
       </div>
-      <button class="btn-checkout" onclick="alert('🎉 Order placed! Thank you!')">✅ Checkout</button>
+      <button class="btn-checkout" onclick="window.location='/checkout'">✅ Checkout</button>
       <a href="/" class="btn-continue">← Continue Shopping</a>
     </div>
   </div>

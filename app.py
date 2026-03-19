@@ -392,3 +392,90 @@ def admin():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+# ── ORDER SYSTEM ──
+
+@app.route("/checkout", methods=["GET", "POST"])
+def checkout():
+    conn = db()
+    cur = conn.cursor()
+
+    # Get cart items
+    cur.execute("""
+        SELECT cart.id, products.name, products.price, products.id as product_id
+        FROM cart JOIN products ON cart.product_id = products.id
+    """)
+    items = [dict(i) for i in cur.fetchall()]
+    for item in items:
+        item['image_url'] = get_image_url(item['name'])
+    total = sum(item["price"] for item in items)
+
+    if not items:
+        conn.close()
+        return redirect("/cart")
+
+    if request.method == "POST":
+        name    = request.form.get("name", "").strip()
+        phone   = request.form.get("phone", "").strip()
+        address = request.form.get("address", "").strip()
+        city    = request.form.get("city", "").strip()
+        pincode = request.form.get("pincode", "").strip()
+
+        if not all([name, phone, address, city, pincode]):
+            conn.close()
+            return render_template("checkout.html", items=items, total=total,
+                                   cart_count=get_cart_count(), error="All fields required!")
+
+        # Save order
+        cur.execute(
+            "INSERT INTO orders(name,phone,address,city,pincode,total) VALUES(?,?,?,?,?,?)",
+            (name, phone, address, city, pincode, total)
+        )
+        order_id = cur.lastrowid
+
+        # Save order items
+        for item in items:
+            cur.execute(
+                "INSERT INTO order_items(order_id,product_name,product_price) VALUES(?,?,?)",
+                (order_id, item["name"], item["price"])
+            )
+
+        # Clear cart
+        cur.execute("DELETE FROM cart")
+        conn.commit()
+        conn.close()
+        return redirect(f"/order-confirmed/{order_id}")
+
+    conn.close()
+    return render_template("checkout.html", items=items, total=total,
+                           cart_count=get_cart_count(), error=None)
+
+
+@app.route("/order-confirmed/<int:order_id>")
+def order_confirmed(order_id):
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM orders WHERE id=?", (order_id,))
+    order = cur.fetchone()
+    if not order:
+        conn.close()
+        return redirect("/")
+    order = dict(order)
+    cur.execute("SELECT * FROM order_items WHERE order_id=?", (order_id,))
+    items = [dict(i) for i in cur.fetchall()]
+    conn.close()
+    return render_template("order_confirmed.html", order=order, items=items, cart_count=get_cart_count())
+
+
+@app.route("/orders")
+def orders():
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM orders ORDER BY created_at DESC")
+    orders = [dict(o) for o in cur.fetchall()]
+    for o in orders:
+        cur.execute("SELECT * FROM order_items WHERE order_id=?", (o["id"],))
+        o["items"] = [dict(i) for i in cur.fetchall()]
+    conn.close()
+    return render_template("orders.html", orders=orders, cart_count=get_cart_count())
