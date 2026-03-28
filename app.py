@@ -1,9 +1,16 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
+import os
 
 app = Flask(__name__)
 
+# Auto-create DB on first deploy
+if not os.path.exists("store.db"):
+    import subprocess
+    subprocess.run(["python", "database.py"])
+
 PRODUCT_IMAGES = {
+    # STATIONARY
     "Ball Pen Blue": "https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=300&h=300&fit=crop",
     "Mechanical Pencil 0.7mm": "https://images.unsplash.com/photo-1616627561839-074385245ff6?w=300&h=300&fit=crop",
     "HB Wood Pencil": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=300&h=300&fit=crop",
@@ -54,56 +61,313 @@ PRODUCT_IMAGES = {
     "Tape Dispenser Desktop": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=300&h=300&fit=crop",
     "Letter Tray 3 Tier": "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=300&h=300&fit=crop",
     "Stamp Pad Ink Blue": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=300&h=300&fit=crop",
-    "Scientific Calculator": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=300&h=300&fit=crop",
-    "Wired In-ear Earphones": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop",
-    "USB-C Data Cable 2m": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=300&h=300&fit=crop",
-    "Wireless Mouse 2.4GHz": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300&h=300&fit=crop",
-    "RGB Gaming Keyboard": "https://images.unsplash.com/photo-1595225476474-87563907ef1b?w=300&h=300&fit=crop",
-    "LED Desk Lamp USB": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop",
-    "Over-ear Bluetooth Headphones": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=300&h=300&fit=crop",
-    "Fitness Tracker Band": "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=300&h=300&fit=crop",
-    "USB Hub 4 Port": "https://images.unsplash.com/photo-1625895197185-efcec01cffe0?w=300&h=300&fit=crop",
-    "Webcam 1080p HD": "https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=300&h=300&fit=crop",
-    "Portable Charger 10000mAh": "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=300&h=300&fit=crop",
-    "Bluetooth Speaker Mini": "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300&h=300&fit=crop",
-    "Screen Cleaning Kit": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=300&h=300&fit=crop&hue=120",
-    "Laptop Cooling Pad": "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=300&h=300&fit=crop&hue=200",
-    "HDMI Cable 2m": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=300&h=300&fit=crop&hue=120",
-    "Memory Card 32GB": "https://images.unsplash.com/photo-1631643889786-4e7c9e744dc4?w=300&h=300&fit=crop",
-    "USB Flash Drive 64GB": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=300&h=300&fit=crop",
-    "Phone Stand Adjustable": "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=300&fit=crop",
-    "Laptop Stand Aluminium": "https://images.unsplash.com/photo-1612831455543-a70a0e769a43?w=300&h=300&fit=crop",
-    "Wireless Charger Pad": "https://images.unsplash.com/photo-1614624532983-4ce03382d63d?w=300&h=300&fit=crop",
-    "LED Strip Lights 5m": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=280",
-    "Smart Plug WiFi": "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=300&h=300&fit=crop",
-    "Keyboard Wrist Rest": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&h=300&fit=crop",
-    "Mouse Pad XL Gaming": "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=300&h=300&fit=crop",
-    "Cable Organizer Clips": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&sat=-50",
-    "Earphone Case Hard": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop&sat=-30",
-    "Laptop Bag Sleeve 15in": "https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?w=300&h=300&fit=crop",
-    "Numeric Keypad USB": "https://images.unsplash.com/photo-1595225476474-87563907ef1b?w=300&h=300&fit=crop&sat=-40",
-    "Monitor Light Bar": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop&hue=60",
-    "Gamepad Controller USB": "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=300&h=300&fit=crop",
-    "Bluetooth Keyboard Mini": "https://images.unsplash.com/photo-1561112078-7d24e04c3407?w=300&h=300&fit=crop",
-    "Digital Alarm Clock": "https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=300&h=300&fit=crop&hue=200",
-    "Extension Board 6 Socket": "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=300&h=300&fit=crop&hue=60",
-    "Cable USB-A to Micro": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=300&h=300&fit=crop&sat=-20",
-    "Phone Camera Lens Kit": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300&h=300&fit=crop",
-    "Portable Mini Fan USB": "https://images.unsplash.com/photo-1561330256-9b96c4b39c4a?w=300&h=300&fit=crop",
-    "Earbuds TWS Wireless": "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=300&h=300&fit=crop",
-    "Drawing Tablet Small": "https://images.unsplash.com/photo-1561883088-039e53143d73?w=300&h=300&fit=crop",
-    "Pocket Projector Mini": "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=300&h=300&fit=crop&hue=200",
-    "Smart LED Bulb WiFi": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=60",
-    "Keyboard Backlit USB": "https://images.unsplash.com/photo-1595225476474-87563907ef1b?w=300&h=300&fit=crop&hue=280",
-    "VR Headset Mobile": "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=300&h=300&fit=crop",
-    "Action Camera Mini": "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=300&h=300&fit=crop",
-    "Digital Scale 5kg": "https://images.unsplash.com/photo-1543362906-acfc16c67564?w=300&h=300&fit=crop",
-    "FM Radio Portable": "https://images.unsplash.com/photo-1563330232-57114bb0823c?w=300&h=300&fit=crop",
-    "Electric Eraser USB": "https://images.unsplash.com/photo-1508615039623-a25605d2b022?w=300&h=300&fit=crop&hue=200",
-    "Webcam Cover Slider": "https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=300&h=300&fit=crop&sat=-60",
-    "Type-C Hub 7in1": "https://images.unsplash.com/photo-1625895197185-efcec01cffe0?w=300&h=300&fit=crop&hue=60",
-    "Ring Light 10inch": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300&h=300&fit=crop&hue=60",
-    "Noise Machine Sleep": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop&sat=-40",
+    # HOME APPLIANCES
+    "Table Fan 3 Speed": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop",
+    "Ceiling Fan 48inch": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=30",
+    "Wall Fan 400mm": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=60",
+    "Exhaust Fan Kitchen": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=90",
+    "Air Cooler 20L": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=300&h=300&fit=crop&hue=200",
+    "Room Heater 2000W": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop",
+    "Mixer Grinder 750W": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop",
+    "Wet Grinder 2L": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=30",
+    "Juicer Mixer 500W": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=300&fit=crop",
+    "Hand Blender 300W": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=60",
+    "Electric Kettle 1.5L": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=300&h=300&fit=crop",
+    "Sandwich Maker": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&h=300&fit=crop",
+    "Induction Cooktop": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=120",
+    "Gas Stove 2 Burner": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=150",
+    "Pressure Cooker 5L": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=180",
+    "Rice Cooker 1.8L": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=210",
+    "Microwave 20L": "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=300&h=300&fit=crop",
+    "OTG Oven 28L": "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=300&h=300&fit=crop&hue=30",
+    "Air Fryer 4L": "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=300&h=300&fit=crop&hue=60",
+    "Electric Iron 1000W": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=180",
+    "Steam Iron 1600W": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=210",
+    "Clothes Dryer": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=240",
+    "Washing Machine 6kg": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=270",
+    "Water Purifier RO": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&h=300&fit=crop&hue=180",
+    "Water Dispenser": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&h=300&fit=crop&hue=200",
+    "Refrigerator 190L": "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=300&h=300&fit=crop",
+    "Vacuum Cleaner 1200W": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=300",
+    "Chimney 60cm": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=240",
+    "Dishwasher 8 Place": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=320",
+    "Electric Grill": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&h=300&fit=crop&hue=30",
+    "Coffee Maker 600W": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=300&fit=crop",
+    "Pop Up Toaster": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&h=300&fit=crop&hue=60",
+    "Food Processor": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=270",
+    "Hand Mixer 250W": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=300",
+    "Roti Maker": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&hue=330",
+    "Egg Boiler": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=300&fit=crop&hue=30",
+    "Sewing Machine": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&sat=-30",
+    "Iron Box Steam 2000W": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&hue=150",
+    "Mosquito Killer": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop&hue=30",
+    "Room Freshener": "https://images.unsplash.com/photo-1556228578-dd539282b964?w=300&h=300&fit=crop",
+    "Extension Cord 5m": "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=300&h=300&fit=crop",
+    "LED Bulb 12W Pack": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop&hue=60",
+    "Ceiling Light": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop&hue=90",
+    "Night Lamp": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop&hue=120",
+    "Door Bell Wireless": "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=300&h=300&fit=crop&hue=30",
+    "CCTV Camera": "https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=300&h=300&fit=crop",
+    "Smart Switch WiFi": "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=300&h=300&fit=crop&hue=60",
+    "Inverter Battery": "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=300&h=300&fit=crop&hue=90",
+    "Solar Light Outdoor": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop&hue=150",
+    "Power Strip Surge": "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=300&h=300&fit=crop&hue=120",
+    # MOBILES & LAPTOPS
+    "Budget Smartphone 4G": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop",
+    "Mid Range Phone 5G": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&hue=30",
+    "Premium Phone 5G": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&hue=60",
+    "Gaming Phone": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&hue=280",
+    "Foldable Phone": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&hue=120",
+    "Rugged Smartphone": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&sat=-30",
+    "Elderly Phone Large": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&hue=150",
+    "Kids Smartphone": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&hue=180",
+    "Dual SIM Phone": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&hue=200",
+    "Camera Phone 108MP": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300&h=300&fit=crop",
+    "Basic Laptop 15in": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop",
+    "Student Laptop": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&hue=30",
+    "Business Laptop": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&hue=60",
+    "Gaming Laptop": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&hue=280",
+    "Ultra Thin Laptop": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&sat=-20",
+    "2-in-1 Laptop Tablet": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&hue=120",
+    "MacBook Style Laptop": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&sat=-40",
+    "Budget Laptop 14in": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&hue=150",
+    "Laptop 17inch": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&hue=180",
+    "Refurbished Laptop": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&hue=200",
+    "Tablet 10inch": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop",
+    "Tablet with Keyboard": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop&hue=30",
+    "Kids Learning Tablet": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop&hue=280",
+    "Drawing Tablet Pro": "https://images.unsplash.com/photo-1561883088-039e53143d73?w=300&h=300&fit=crop",
+    "Graphic Tablet": "https://images.unsplash.com/photo-1561883088-039e53143d73?w=300&h=300&fit=crop&hue=30",
+    "Phone Screen Protector": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&sat=-60",
+    "Phone Back Cover": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop&hue=240",
+    "Phone Holder Car": "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=300&fit=crop",
+    "Fast Charger 65W": "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=300&h=300&fit=crop",
+    "Wireless Charger 15W": "https://images.unsplash.com/photo-1614624532983-4ce03382d63d?w=300&h=300&fit=crop",
+    "Power Bank 20000mAh": "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=300&h=300&fit=crop&hue=30",
+    "Data Cable Braided": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=300&h=300&fit=crop",
+    "OTG Adapter": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=300&h=300&fit=crop&hue=30",
+    "Memory Card 128GB": "https://images.unsplash.com/photo-1631643889786-4e7c9e744dc4?w=300&h=300&fit=crop",
+    "SIM Card Ejector": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=300&h=300&fit=crop&sat=-40",
+    "Laptop Charger Universal": "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=300&h=300&fit=crop&hue=60",
+    "Laptop Cooling Fan": "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=300&h=300&fit=crop",
+    "Laptop RAM 8GB": "https://images.unsplash.com/photo-1631643889786-4e7c9e744dc4?w=300&h=300&fit=crop&hue=30",
+    "SSD 256GB": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=300&h=300&fit=crop",
+    "Laptop Keyboard Cover": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&h=300&fit=crop",
+    "Mouse Wireless Laptop": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300&h=300&fit=crop",
+    "Laptop Backpack Pro": "https://images.unsplash.com/photo-1581605405669-fcdf81165afa?w=300&h=300&fit=crop",
+    "Screen Cleaning Spray": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=300&h=300&fit=crop",
+    "USB-C Hub 6in1": "https://images.unsplash.com/photo-1625895197185-efcec01cffe0?w=300&h=300&fit=crop",
+    "Bluetooth Adapter USB": "https://images.unsplash.com/photo-1625895197185-efcec01cffe0?w=300&h=300&fit=crop&hue=30",
+    "WiFi Adapter USB": "https://images.unsplash.com/photo-1625895197185-efcec01cffe0?w=300&h=300&fit=crop&hue=60",
+    "HDMI Adapter TypeC": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=300&h=300&fit=crop&hue=60",
+    "Laptop Stand Foldable": "https://images.unsplash.com/photo-1612831455543-a70a0e769a43?w=300&h=300&fit=crop",
+    "Privacy Screen Filter": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop&sat=-60",
+    "Phone Sanitizer UV": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=300&h=300&fit=crop&hue=280",
+    # MEDICAL
+    "Digital Thermometer": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop",
+    "Blood Pressure Monitor": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop",
+    "Pulse Oximeter": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=30",
+    "Glucometer Kit": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=60",
+    "Nebulizer Machine": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=30",
+    "Heating Pad Electric": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=90",
+    "Ice Bag Therapy": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=200",
+    "First Aid Box": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=0",
+    "Bandage Crepe 4in": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&sat=-20",
+    "Cotton Roll 400g": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&sat=-40",
+    "Surgical Gloves 50pc": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=120",
+    "Face Mask N95 10pc": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=150",
+    "Sanitizer 500ml": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=180",
+    "Antiseptic Solution": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=210",
+    "Digital BP Wrist": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=60",
+    "Stethoscope": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=90",
+    "Weighing Scale Body": "https://images.unsplash.com/photo-1543362906-acfc16c67564?w=300&h=300&fit=crop",
+    "Baby Weighing Scale": "https://images.unsplash.com/photo-1543362906-acfc16c67564?w=300&h=300&fit=crop&hue=30",
+    "Infrared Thermometer": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=240",
+    "Glucose Test Strips": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=270",
+    "BP Strips": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=300",
+    "Medicine Organizer": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=330",
+    "Pill Cutter": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&sat=20",
+    "Syringe 5ml Pack": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&sat=40",
+    "IV Stand": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=120",
+    "Cervical Collar": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=150",
+    "Knee Cap Support": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=180",
+    "Ankle Support": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=200",
+    "Wrist Support": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=220",
+    "Back Support Belt": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=240",
+    "Crutches Pair": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=260",
+    "Walking Stick": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=280",
+    "Wheelchair": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=300",
+    "Air Bed Medical": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=320",
+    "Bedpan Plastic": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&sat=60",
+    "Urinal Bottle": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&sat=80",
+    "Vaporizer Steam": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&sat=20",
+    "Eye Wash Cup": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=30&sat=30",
+    "Tongue Depressor": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=60&sat=30",
+    "Dressing Scissors": "https://images.unsplash.com/photo-1562564055-71e051d33c19?w=300&h=300&fit=crop&hue=30",
+    "Forceps Mosquito": "https://images.unsplash.com/photo-1562564055-71e051d33c19?w=300&h=300&fit=crop&hue=60",
+    "Urine Test Cup": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=90&sat=30",
+    "Hot Water Bag": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&sat=40",
+    "Cold Pack Gel": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&sat=60&hue=200",
+    "Compression Stockings": "https://images.unsplash.com/photo-1584735175315-9d5df23be4be?w=300&h=300&fit=crop",
+    "Nasal Aspirator": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=120&sat=30",
+    "Breast Pump Manual": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=150&sat=30",
+    "Baby Monitor": "https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=300&h=300&fit=crop&hue=30",
+    "Hearing Aid Basic": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop&hue=180&sat=30",
+    "TENS Machine": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&sat=80",
+    # FITNESS
+    "Yoga Mat 6mm": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop",
+    "Dumbbell Set 10kg": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop",
+    "Resistance Bands Set": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=30",
+    "Skipping Rope": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=60",
+    "Pull Up Bar": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=90",
+    "Push Up Board": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=120",
+    "Ab Roller Wheel": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=150",
+    "Kettlebell 8kg": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=180",
+    "Barbell Set 20kg": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=200",
+    "Weight Plates 5kg": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=220",
+    "Exercise Cycle": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=240",
+    "Treadmill Manual": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=260",
+    "Rowing Machine": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=280",
+    "Stepper Machine": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=300",
+    "Elliptical Trainer": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=320",
+    "Gym Gloves": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&sat=30",
+    "Gym Belt": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&sat=50",
+    "Knee Wraps": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&sat=70",
+    "Wrist Wraps": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&sat=90",
+    "Gym Bag": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop&hue=200",
+    "Protein Shaker": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&h=300&fit=crop&hue=60",
+    "Water Bottle Sport": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&h=300&fit=crop&hue=90",
+    "Foam Roller": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=30",
+    "Massage Ball": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=60",
+    "Stretching Strap": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=90",
+    "Balance Board": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=120",
+    "Bosu Ball": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=150",
+    "Battle Rope 10m": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&sat=-20",
+    "Medicine Ball 3kg": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&sat=-40",
+    "Suspension Trainer": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&sat=-60",
+    "Gymnastics Mat": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=200",
+    "Exercise Bench": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=30&sat=-20",
+    "Squat Rack": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=60&sat=-20",
+    "Pull Down Machine": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=90&sat=-20",
+    "Dip Station": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=120&sat=-20",
+    "Speed Bag": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=150&sat=-20",
+    "Boxing Gloves": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=0&sat=30",
+    "Jump Board": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=240",
+    "Punching Bag 3ft": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=180&sat=-20",
+    "Sports Shoes Running": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop&hue=30",
+    "Compression Shorts": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=200&sat=-20",
+    "Sports Bra": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=280",
+    "Track Pants": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=220&sat=-20",
+    "Sports T-shirt": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=300&h=300&fit=crop&hue=240&sat=-20",
+    "Yoga Block Set": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=300",
+    "Yoga Wheel": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=320",
+    "Acupressure Mat": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=300&h=300&fit=crop&hue=340",
+    "Posture Corrector": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=30",
+    "Massage Gun": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop&hue=60",
+    "Smart Scale BMI": "https://images.unsplash.com/photo-1543362906-acfc16c67564?w=300&h=300&fit=crop&hue=30",
+    # KIDS
+    "Building Blocks 100pc": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop",
+    "Remote Control Car": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop",
+    "Barbie Doll": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=320",
+    "Action Figure Set": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=30",
+    "Jigsaw Puzzle 500pc": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=30",
+    "Board Game Family": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=60",
+    "Card Game UNO": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=90",
+    "Chess Set": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=120",
+    "Ludo Board Game": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=150",
+    "Carrom Board": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=180",
+    "Badminton Set": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=60",
+    "Cricket Set Kids": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=90",
+    "Football Size 5": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=120",
+    "Basketball": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=150",
+    "Frisbee": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=180",
+    "Kite Set": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=200",
+    "Water Gun": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=220",
+    "Nerf Gun": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=240",
+    "Play Dough Set": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=200",
+    "Kinetic Sand": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=220",
+    "Slime Kit": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=240",
+    "Art Craft Kit": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=260",
+    "Coloring Book": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=280",
+    "Sticker Book": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=300",
+    "Clay Modeling Set": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=320",
+    "Science Kit Kids": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=340",
+    "Robot Toy": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=260",
+    "Drone Mini Kids": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=280",
+    "Telescope Kids": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=300",
+    "Microscope Kids": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=320",
+    "Musical Keyboard": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&sat=30",
+    "Guitar Toy Mini": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&sat=50",
+    "Drum Set Kids": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&sat=70",
+    "Baby Walker": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&sat=-30",
+    "Baby Rocker": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&sat=-50",
+    "Baby Swing": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&sat=-70",
+    "Stuffed Teddy Bear": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&sat=30",
+    "Soft Toys Set": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&sat=50",
+    "Puppet Set": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&sat=70",
+    "Kids Tent": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&sat=-30",
+    "Trampoline Mini": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&sat=-50",
+    "Slide and Swing": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&sat=-70",
+    "Tricycle": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&sat=-90",
+    "Balance Bike": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=340",
+    "Scooter Kids": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=0&sat=-30",
+    "Roller Skates": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=20&sat=-30",
+    "Helmet Kids": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=40&sat=-30",
+    "Knee Pads Kids": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=300&fit=crop&hue=60&sat=-30",
+    "Magic Set Kids": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=0&sat=30",
+    "Kaleidoscope": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300&h=300&fit=crop&hue=20&sat=30",
+    # FASHION
+    "Gold Plated Necklace": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop",
+    "Silver Chain Necklace": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&sat=-50",
+    "Pearl Necklace Set": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=30",
+    "Mangalsutra Gold": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=60",
+    "Temple Jewellery Set": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=90",
+    "Diamond Pendant": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=120",
+    "Choker Necklace": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=150",
+    "Layered Necklace": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=180",
+    "Gold Bangles Set": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=200",
+    "Silver Bracelet": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=220&sat=-30",
+    "Kada Bangle": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=240",
+    "Beaded Bracelet": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=260",
+    "Gold Earrings": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=280",
+    "Silver Earrings": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=300&sat=-30",
+    "Jhumka Earrings": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=320",
+    "Hoop Earrings": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=340",
+    "Stud Earrings CZ": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&sat=30",
+    "Thread Earrings": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&sat=50",
+    "Gold Ring": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&sat=70",
+    "Silver Ring": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&sat=-70",
+    "Stone Ring": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&sat=90",
+    "Couple Ring Set": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=30&sat=30",
+    "Nose Pin Gold": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=60&sat=30",
+    "Maang Tikka": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=90&sat=30",
+    "Hair Clips Set": "https://images.unsplash.com/photo-1556228578-dd539282b964?w=300&h=300&fit=crop&hue=30",
+    "Saree Pin Set": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=120&sat=30",
+    "Bindis Pack": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=150&sat=30",
+    "Bangles Glass Set": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=180&sat=30",
+    "Anklet Payal": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=200&sat=30",
+    "Toe Ring Set": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=220&sat=30",
+    "Sunglasses Fashion": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&h=300&fit=crop&hue=30",
+    "Hair Band Designer": "https://images.unsplash.com/photo-1556228578-dd539282b964?w=300&h=300&fit=crop&hue=60",
+    "Scarf Silk": "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=300&h=300&fit=crop&hue=30",
+    "Handbag Clutch": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&h=300&fit=crop&hue=300",
+    "Ladies Wallet": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=300&h=300&fit=crop&hue=300",
+    "Wristlet Bag": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&h=300&fit=crop&hue=320",
+    "Belt Ladies": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop&hue=320",
+    "Hat Sun Wide": "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=300&h=300&fit=crop&hue=30",
+    "Cap Trendy": "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=300&h=300&fit=crop&hue=60",
+    "Watch Ladies": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop&hue=300",
+    "Watch Men Casual": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop&hue=320",
+    "Perfume Women 50ml": "https://images.unsplash.com/photo-1541643600914-78b084683702?w=300&h=300&fit=crop",
+    "Perfume Men 50ml": "https://images.unsplash.com/photo-1541643600914-78b084683702?w=300&h=300&fit=crop&hue=200",
+    "Lipstick Set 6pc": "https://images.unsplash.com/photo-1586495777744-4e6232bf2177?w=300&h=300&fit=crop",
+    "Kajal Black": "https://images.unsplash.com/photo-1586495777744-4e6232bf2177?w=300&h=300&fit=crop&hue=200",
+    "Foundation Compact": "https://images.unsplash.com/photo-1586495777744-4e6232bf2177?w=300&h=300&fit=crop&hue=30",
+    "Nail Polish Set": "https://images.unsplash.com/photo-1586495777744-4e6232bf2177?w=300&h=300&fit=crop&hue=60",
+    "Mehendi Cone": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=240&sat=30",
+    "Bindi Roll": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop&hue=260&sat=30",
+    "Dupatta Chiffon": "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=300&h=300&fit=crop&hue=60",
+    # BAGS
     "Canvas School Bag": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop",
     "Neoprene Laptop Sleeve": "https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?w=300&h=300&fit=crop",
     "Hiking Daypack 25L": "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=300&h=300&fit=crop",
@@ -154,6 +418,7 @@ PRODUCT_IMAGES = {
     "Shoe Bag Travel": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop&sat=-20",
     "Pencil Case Large": "https://images.unsplash.com/photo-1544816565-aa8c1166648f?w=300&h=300&fit=crop&sat=40",
     "Pouch Waterproof Phone": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&h=300&fit=crop&sat=-40",
+    # ACCESSORIES
     "Stainless Steel Water Bottle": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&h=300&fit=crop",
     "Steel Lunch Box Compartment": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=300&h=300&fit=crop",
     "Polarized UV Sunglasses": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&h=300&fit=crop",
@@ -204,6 +469,8 @@ PRODUCT_IMAGES = {
     "Microfiber Cloth 5pc": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=300&h=300&fit=crop&sat=-40",
     "Lens Cleaning Pen": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300&h=300&fit=crop&sat=-40",
     "Collapsible Water Cup": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&h=300&fit=crop&hue=120",
+    "Portable Ashtray": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=300&h=300&fit=crop&sat=-60",
+    # FOOTWEAR
     "Running Sports Shoes": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop",
     "Foam Flip Flops": "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=300&h=300&fit=crop",
     "Leather Casual Shoes": "https://images.unsplash.com/photo-1449505278894-297fdb3edbc1?w=300&h=300&fit=crop",
@@ -258,15 +525,15 @@ PRODUCT_IMAGES = {
 
 LIMITED_OFFER_CATEGORIES = {
     "electronic": {"label": "⚡ Flash Sale", "hours": 6},
+    "mobile":     {"label": "📱 Limited Deal", "hours": 8},
     "footwear":   {"label": "👟 Weekend Deal", "hours": 24},
     "bag":        {"label": "🎒 Limited Stock", "hours": 12},
+    "fitness":    {"label": "💪 Fitness Sale", "hours": 10},
+    "fashion":    {"label": "👗 Style Sale", "hours": 18},
 }
 
 def get_image_url(name):
-    return PRODUCT_IMAGES.get(
-        name,
-        f"https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=300&h=300&fit=crop"
-    )
+    return PRODUCT_IMAGES.get(name, "https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=300&h=300&fit=crop")
 
 def get_offer(category):
     return LIMITED_OFFER_CATEGORIES.get(category, None)
@@ -288,7 +555,6 @@ def enrich(products):
     for p in products:
         p['image_url'] = get_image_url(p['name'])
         p['offer'] = get_offer(p['category'])
-        # Calculate discount percentage
         orig = p.get('original_price', 0)
         price = p.get('price', 0)
         if orig and orig > price:
@@ -322,17 +588,16 @@ def product(id):
     product = dict(row)
     product['image_url'] = get_image_url(product['name'])
     product['offer'] = get_offer(product['category'])
+    orig = product.get('original_price', 0)
+    price = product.get('price', 0)
+    product['discount'] = round((1 - price / orig) * 100) if orig and orig > price else 0
     cur.execute("SELECT * FROM products WHERE category=? AND id!=? LIMIT 4", (product['category'], id))
     rec = enrich([dict(r) for r in cur.fetchall()])
-
-    # Get reviews for this product
     cur.execute("SELECT * FROM reviews WHERE product_id=? ORDER BY created_at DESC", (id,))
     reviews = [dict(r) for r in cur.fetchall()]
     avg_rating = round(sum(r['rating'] for r in reviews) / len(reviews), 1) if reviews else None
-
     conn.close()
-    return render_template("product.html", product=product, rec=rec,
-                           cart_count=get_cart_count(), reviews=reviews, avg_rating=avg_rating)
+    return render_template("product.html", product=product, rec=rec, cart_count=get_cart_count(), reviews=reviews, avg_rating=avg_rating)
 
 @app.route("/search")
 def search():
@@ -343,8 +608,7 @@ def search():
     products = enrich([dict(p) for p in cur.fetchall()])
     rec = []
     if products:
-        cur.execute("SELECT * FROM products WHERE category=? AND id!=? LIMIT 4",
-                    (products[0]["category"], products[0]["id"]))
+        cur.execute("SELECT * FROM products WHERE category=? AND id!=? LIMIT 4", (products[0]["category"], products[0]["id"]))
         rec = enrich([dict(r) for r in cur.fetchall()])
     conn.close()
     return render_template("products.html", products=products, rec=rec, query=q, cart_count=get_cart_count())
@@ -384,51 +648,10 @@ def cart():
     conn.close()
     return render_template("cart.html", items=items, total=total, cart_count=get_cart_count())
 
-@app.route("/admin")
-def admin():
-    return render_template("admin.html", cart_count=get_cart_count())
-
-
-
-# ── REVIEW SYSTEM ──
-
-@app.route("/review/<int:product_id>", methods=["POST"])
-def add_review(product_id):
-    name    = request.form.get("reviewer_name", "").strip()
-    phone   = request.form.get("phone", "").strip()
-    rating  = request.form.get("rating", "5").strip()
-    comment = request.form.get("comment", "").strip()
-
-    if name and phone and comment and rating:
-        conn = db()
-        cur = conn.cursor()
-        # One review per phone per product
-        cur.execute("SELECT id FROM reviews WHERE product_id=? AND REPLACE(phone,' ','')=?",
-                    (product_id, phone.replace(" ","")))
-        existing = cur.fetchone()
-        if existing:
-            # Update existing review
-            cur.execute("UPDATE reviews SET rating=?, comment=?, reviewer_name=?, created_at=CURRENT_TIMESTAMP WHERE id=?",
-                        (int(rating), comment, name, existing["id"]))
-        else:
-            cur.execute("INSERT INTO reviews(product_id,reviewer_name,phone,rating,comment) VALUES(?,?,?,?,?)",
-                        (product_id, name, phone, int(rating), comment))
-        conn.commit()
-        conn.close()
-    return redirect(f"/product/{product_id}")
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-
-# ── ORDER SYSTEM ──
-
 @app.route("/checkout", methods=["GET", "POST"])
 def checkout():
     conn = db()
     cur = conn.cursor()
-
-    # Get cart items
     cur.execute("""
         SELECT cart.id, products.name, products.price, products.id as product_id
         FROM cart JOIN products ON cart.product_id = products.id
@@ -437,47 +660,28 @@ def checkout():
     for item in items:
         item['image_url'] = get_image_url(item['name'])
     total = sum(item["price"] for item in items)
-
     if not items:
         conn.close()
         return redirect("/cart")
-
     if request.method == "POST":
         name    = request.form.get("name", "").strip()
         phone   = request.form.get("phone", "").strip()
         address = request.form.get("address", "").strip()
         city    = request.form.get("city", "").strip()
         pincode = request.form.get("pincode", "").strip()
-
         if not all([name, phone, address, city, pincode]):
             conn.close()
-            return render_template("checkout.html", items=items, total=total,
-                                   cart_count=get_cart_count(), error="All fields required!")
-
-        # Save order
-        cur.execute(
-            "INSERT INTO orders(name,phone,address,city,pincode,total) VALUES(?,?,?,?,?,?)",
-            (name, phone, address, city, pincode, total)
-        )
+            return render_template("checkout.html", items=items, total=total, cart_count=get_cart_count(), error="All fields required!")
+        cur.execute("INSERT INTO orders(name,phone,address,city,pincode,total) VALUES(?,?,?,?,?,?)", (name, phone, address, city, pincode, total))
         order_id = cur.lastrowid
-
-        # Save order items
         for item in items:
-            cur.execute(
-                "INSERT INTO order_items(order_id,product_name,product_price) VALUES(?,?,?)",
-                (order_id, item["name"], item["price"])
-            )
-
-        # Clear cart
+            cur.execute("INSERT INTO order_items(order_id,product_name,product_price) VALUES(?,?,?)", (order_id, item["name"], item["price"]))
         cur.execute("DELETE FROM cart")
         conn.commit()
         conn.close()
         return redirect(f"/order-confirmed/{order_id}")
-
     conn.close()
-    return render_template("checkout.html", items=items, total=total,
-                           cart_count=get_cart_count(), error=None)
-
+    return render_template("checkout.html", items=items, total=total, cart_count=get_cart_count(), error=None)
 
 @app.route("/order-confirmed/<int:order_id>")
 def order_confirmed(order_id):
@@ -494,19 +698,46 @@ def order_confirmed(order_id):
     conn.close()
     return render_template("order_confirmed.html", order=order, items=items, cart_count=get_cart_count())
 
-
 @app.route("/orders")
 def orders():
     phone = request.args.get("phone", "").strip()
     conn = db()
     cur = conn.cursor()
-    orders = []
     if phone:
-        # Filter by phone number - only show that user's orders
-        cur.execute("SELECT * FROM orders WHERE phone=? ORDER BY created_at DESC", (phone,))
+        clean = phone.replace(" ", "").replace("-", "")
+        cur.execute("SELECT * FROM orders WHERE REPLACE(REPLACE(phone,' ',''),'-','') LIKE ? ORDER BY created_at DESC", ('%' + clean + '%',))
         orders = [dict(o) for o in cur.fetchall()]
         for o in orders:
             cur.execute("SELECT * FROM order_items WHERE order_id=?", (o["id"],))
             o["items"] = [dict(i) for i in cur.fetchall()]
-    conn.close()
-    return render_template("orders.html", orders=orders, cart_count=get_cart_count(), phone=phone)
+        conn.close()
+        return render_template("orders.html", orders=orders, cart_count=get_cart_count(), searched_phone=phone)
+    else:
+        conn.close()
+        return render_template("orders.html", orders=[], cart_count=get_cart_count(), searched_phone=None)
+
+@app.route("/review/<int:product_id>", methods=["POST"])
+def add_review(product_id):
+    name    = request.form.get("reviewer_name", "").strip()
+    phone   = request.form.get("phone", "").strip()
+    rating  = request.form.get("rating", "5").strip()
+    comment = request.form.get("comment", "").strip()
+    if name and phone and comment and rating:
+        conn = db()
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM reviews WHERE product_id=? AND REPLACE(phone,' ','')=?", (product_id, phone.replace(" ","")))
+        existing = cur.fetchone()
+        if existing:
+            cur.execute("UPDATE reviews SET rating=?, comment=?, reviewer_name=?, created_at=CURRENT_TIMESTAMP WHERE id=?", (int(rating), comment, name, existing["id"]))
+        else:
+            cur.execute("INSERT INTO reviews(product_id,reviewer_name,phone,rating,comment) VALUES(?,?,?,?,?)", (product_id, name, phone, int(rating), comment))
+        conn.commit()
+        conn.close()
+    return redirect(f"/product/{product_id}")
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html", cart_count=get_cart_count())
+
+if __name__ == "__main__":
+    app.run(debug=True)
