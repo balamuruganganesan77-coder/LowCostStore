@@ -12,7 +12,6 @@ if not os.path.exists("store.db"):
 PRODUCT_IMAGES = {
     # STATIONARY
     "Ball Pen Blue": "https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=300&h=300&fit=crop",
-    "Mechanical Pencil 0.7mm": "https://images.unsplash.com/photo-1616627561839-074385245ff6?w=300&h=300&fit=crop",
     "HB Wood Pencil": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=300&h=300&fit=crop",
     "Colored Pencils 12 Pack": "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=300&h=300&fit=crop",
     "Spiral Notebook 200pg": "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=300&h=300&fit=crop",
@@ -20,6 +19,7 @@ PRODUCT_IMAGES = {
     "Text Highlighters 5pc": "https://images.unsplash.com/photo-1456735190827-d1262f71b8a3?w=300&h=300&fit=crop",
     "Rubber Eraser Natural": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=300&h=300&fit=crop",
     "Pencil Sharpener Electric": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=300&h=300&fit=crop",
+    "Mechanical Pencil 0.7mm": "https://images.unsplash.com/photo-1616627561839-074385245ff6?w=300&h=300&fit=crop",
     "Grid Notebook A5": "https://images.unsplash.com/photo-1517842645767-c639042777db?w=300&h=300&fit=crop",
     "Sketch Pad 30 Sheets": "https://images.unsplash.com/photo-1542626991-cbc4e32524cc?w=300&h=300&fit=crop",
     "Complete Geometry Set": "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=300&h=300&fit=crop",
