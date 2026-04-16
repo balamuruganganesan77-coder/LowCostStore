@@ -7,70 +7,119 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #ff6b35; --primary-dark: #e55a26;
-    --dark: #0f0f0f; --dark2: #1a1a1a; --dark3: #252525;
-    --card-bg: #1e1e1e; --text: #f0f0f0; --text-muted: #888;
-    --accent: #ffd700; --green: #22c55e; --border: #2e2e2e;
+    --primary: #ff6b35; --primary-dark: #e55a26; --primary-glow: rgba(255,107,53,0.2);
+    --dark: #0a0a0a; --dark2: #141414; --dark3: #1f1f1f;
+    --card-bg: #181818; --text: #f0f0f0; --text-muted: #777;
+    --accent: #ffd700; --green: #22c55e; --border: #282828;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
-  .navbar { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 20px; padding: 14px 32px; }
-  .logo { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  /* NAVBAR */
+  .navbar { position: sticky; top: 0; z-index: 100; background: rgba(10,10,10,0.97); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; padding: 12px 28px; }
+  .logo { font-family: 'Syne', sans-serif; font-size: 1.45rem; font-weight: 800; color: var(--primary); text-decoration: none; letter-spacing: -0.5px; }
   .logo span { color: var(--accent); }
-  .search-bar { flex: 1; display: flex; max-width: 500px; }
-  .search-bar input { flex: 1; padding: 10px 18px; background: var(--dark3); border: 1px solid var(--border); border-right: none; border-radius: 8px 0 0 8px; color: var(--text); outline: none; }
-  .search-bar button { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 0 8px 8px 0; cursor: pointer; font-weight: 600; }
-  .nav-links { display: flex; gap: 8px; margin-left: auto; }
-  .nav-links a { color: var(--text-muted); text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 0.9rem; transition: all 0.2s; }
+  .search-bar { flex: 1; display: flex; max-width: 440px; }
+  .search-bar input { flex: 1; padding: 10px 14px; background: var(--dark3); border: 1px solid var(--border); border-right: none; border-radius: 10px 0 0 10px; color: var(--text); font-size: 0.88rem; outline: none; transition: border-color 0.2s; font-family: 'DM Sans', sans-serif; }
+  .search-bar input:focus { border-color: var(--primary); }
+  .search-bar button { padding: 10px 16px; background: var(--primary); color: white; border: none; border-radius: 0 10px 10px 0; font-weight: 700; cursor: pointer; }
+  .nav-links { display: flex; gap: 6px; margin-left: auto; }
+  .nav-links a { color: var(--text-muted); text-decoration: none; padding: 8px 13px; border-radius: 8px; font-size: 0.85rem; transition: all 0.2s; }
   .nav-links a:hover { color: var(--text); background: var(--dark3); }
-  .cart-btn { background: var(--primary) !important; color: white !important; font-weight: 600 !important; position: relative; }
-  .cart-badge { position: absolute; top: -6px; right: -6px; background: var(--accent); color: var(--dark); border-radius: 50%; width: 18px; height: 18px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .cart-btn { background: var(--primary) !important; color: white !important; font-weight: 700 !important; position: relative; }
+  .cart-badge { position: absolute; top: -7px; right: -7px; background: var(--accent); color: #000; border-radius: 50%; width: 19px; height: 19px; font-size: 0.62rem; font-weight: 900; display: flex; align-items: center; justify-content: center; }
 
-  .page-header { padding: 28px 32px 0; }
-  .page-header h1 { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; }
-  .page-header p { color: var(--text-muted); margin-top: 4px; }
+  /* PAGE HEADER */
+  .page-header { padding: 24px 28px 0; }
+  .page-header h1 { font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
+  .page-header p { color: var(--text-muted); margin-top: 4px; font-size: 0.88rem; }
 
-  .cart-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; padding: 24px 32px; max-width: 1100px; }
+  /* LAYOUT */
+  .cart-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; padding: 20px 28px 40px; max-width: 1060px; }
 
-  .cart-items { display: flex; flex-direction: column; gap: 12px; }
+  /* CART ITEMS */
+  .cart-items { display: flex; flex-direction: column; gap: 10px; }
   .cart-item {
-    background: var(--card-bg); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px;
-    display: flex; gap: 16px; align-items: center;
-    transition: border-color 0.2s;
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 16px; display: flex; gap: 14px; align-items: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    animation: fadeSlide 0.3s ease forwards;
   }
-  .cart-item:hover { border-color: var(--primary); }
-  .cart-item img { width: 90px; height: 90px; object-fit: cover; border-radius: 10px; background: var(--dark3); flex-shrink: 0; }
-  .item-info { flex: 1; }
-  .item-name { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
-  .item-price { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--primary); }
-  .item-actions { display: flex; gap: 8px; margin-top: 10px; }
-  .btn-view-sm { padding: 6px 14px; background: var(--dark3); color: var(--text); border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem; text-decoration: none; transition: all 0.2s; }
+  @keyframes fadeSlide { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+  .cart-item:hover { border-color: var(--primary); box-shadow: 0 4px 20px rgba(255,107,53,0.1); }
+  .cart-item-img {
+    width: 88px; height: 88px; object-fit: cover; border-radius: 10px;
+    background: var(--dark3); flex-shrink: 0; transition: transform 0.2s;
+  }
+  .cart-item:hover .cart-item-img { transform: scale(1.02); }
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-weight: 600; font-size: 0.92rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-price { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+  .item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-view-sm {
+    padding: 6px 14px; background: var(--dark3); color: var(--text-muted); border: 1px solid var(--border);
+    border-radius: 8px; font-size: 0.78rem; text-decoration: none; transition: all 0.2s; font-weight: 500;
+  }
   .btn-view-sm:hover { border-color: var(--primary); color: var(--primary); }
-  .btn-remove { padding: 6px 14px; background: transparent; color: #ef4444; border: 1px solid #ef4444; border-radius: 6px; font-size: 0.8rem; text-decoration: none; transition: all 0.2s; cursor: pointer; }
-  .btn-remove:hover { background: #ef4444; color: white; }
+  .btn-remove {
+    padding: 6px 14px; background: transparent; color: #fc8181; border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px; font-size: 0.78rem; text-decoration: none; transition: all 0.2s; cursor: pointer; font-weight: 500;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .btn-remove:hover { background: rgba(239,68,68,0.1); border-color: #ef4444; color: #ef4444; }
 
   /* ORDER SUMMARY */
-  .order-summary { position: sticky; top: 80px; }
-  .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
-  .summary-title { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; }
-  .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  .order-summary { position: sticky; top: 72px; height: fit-content; }
+  .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
+  .summary-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .summary-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.83rem; gap: 8px; }
   .summary-row:last-of-type { border-bottom: none; }
-  .summary-total { display: flex; justify-content: space-between; align-items: center; padding: 16px 0 0; margin-top: 8px; border-top: 2px solid var(--primary); }
-  .summary-total span:first-child { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
-  .summary-total span:last-child { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--primary); }
-  .btn-checkout { display: block; width: 100%; margin-top: 16px; padding: 14px; background: var(--green); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; text-align: center; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; }
-  .btn-checkout:hover { opacity: 0.9; }
-  .btn-continue { display: block; width: 100%; margin-top: 10px; padding: 12px; background: var(--dark3); color: var(--text); border: 1px solid var(--border); border-radius: 10px; font-size: 0.9rem; font-weight: 500; text-align: center; text-decoration: none; transition: all 0.2s; }
+  .summary-row .product-name { color: #bbb; flex: 1; line-height: 1.3; }
+  .summary-row .product-price { font-weight: 600; color: var(--text); white-space: nowrap; }
+  .summary-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); margin: 8px 0; }
+  .summary-sub-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.82rem; color: var(--text-muted); }
+  .summary-total { display: flex; justify-content: space-between; align-items: center; padding: 14px 0 0; margin-top: 4px; border-top: 2px solid rgba(255,107,53,0.3); }
+  .total-label { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+  .total-amount { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+  .btn-checkout {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; margin-top: 14px; padding: 14px; background: var(--green); color: white;
+    border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 800;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(34,197,94,0.25);
+  }
+  .btn-checkout:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(34,197,94,0.35); }
+  .btn-continue {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    width: 100%; margin-top: 8px; padding: 11px; background: var(--dark3); color: var(--text-muted);
+    border: 1px solid var(--border); border-radius: 12px; font-size: 0.85rem; font-weight: 500;
+    text-align: center; text-decoration: none; transition: all 0.2s;
+  }
   .btn-continue:hover { border-color: var(--primary); color: var(--primary); }
+  .secure-note { text-align: center; margin-top: 12px; font-size: 0.73rem; color: var(--text-muted); }
 
-  .empty-cart { text-align: center; padding: 80px 32px; }
-  .empty-cart h2 { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; }
-  .empty-cart p { color: var(--text-muted); margin-bottom: 24px; }
-  .btn-shop { display: inline-block; padding: 14px 32px; background: var(--primary); color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 1rem; transition: background 0.2s; }
-  .btn-shop:hover { background: var(--primary-dark); }
+  /* EMPTY CART */
+  .empty-cart { text-align: center; padding: 80px 28px; }
+  .empty-icon { font-size: 5rem; margin-bottom: 16px; animation: float 3s ease-in-out infinite; display: block; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .empty-cart h2 { font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 800; margin-bottom: 8px; }
+  .empty-cart p { color: var(--text-muted); margin-bottom: 24px; font-size: 0.93rem; }
+  .btn-shop { display: inline-flex; align-items: center; gap: 6px; padding: 14px 32px; background: var(--primary); color: white; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 4px 20px var(--primary-glow); }
+  .btn-shop:hover { background: var(--primary-dark); transform: translateY(-1px); }
 
-  @media(max-width:800px) { .cart-layout { grid-template-columns: 1fr; } .order-summary { position: static; } .navbar { padding: 12px 16px; flex-wrap: wrap; } .page-header { padding: 20px 16px 0; } .cart-layout { padding: 16px; } }
+  @media(max-width: 800px) {
+    .cart-layout { grid-template-columns: 1fr; }
+    .order-summary { position: static; }
+    .navbar { padding: 11px 14px; gap: 10px; }
+    .nav-links a:not(.cart-btn) { display: none; }
+    .page-header { padding: 18px 14px 0; }
+    .cart-layout { padding: 14px; }
+    .cart-item-img { width: 70px; height: 70px; }
+  }
 </style>
 </head>
 <body>
@@ -94,19 +143,20 @@
 {% if items %}
 <div class="page-header">
   <h1>🛒 Your Cart</h1>
-  <p>{{ items|length }} item(s) in your cart</p>
+  <p>{{ items|length }} item{{ 's' if items|length != 1 else '' }} ready for checkout</p>
 </div>
 
 <div class="cart-layout">
   <div class="cart-items">
     {% for item in items %}
     <div class="cart-item">
-      <img src="{{ item['image_url'] }}" alt="{{ item['name'] }}" onerror="this.src='https://via.placeholder.com/90x90?text=No+Image'">
+      <img class="cart-item-img" src="{{ item['image_url'] }}" alt="{{ item['name'] }}"
+           onerror="this.src='https://via.placeholder.com/88x88/1a1a1a/555?text=No+Image'">
       <div class="item-info">
         <div class="item-name">{{ item['name'] }}</div>
         <div class="item-price">₹{{ item['price'] }}</div>
         <div class="item-actions">
-          <a href="/product/{{ item['product_id'] }}" class="btn-view-sm">View</a>
+          <a href="/product/{{ item['product_id'] }}" class="btn-view-sm">👁 View</a>
           <a href="/removecart/{{ item['id'] }}" class="btn-remove">🗑 Remove</a>
         </div>
       </div>
@@ -119,27 +169,33 @@
       <div class="summary-title">Order Summary</div>
       {% for item in items %}
       <div class="summary-row">
-        <span>{{ item['name'][:25] }}{% if item['name']|length > 25 %}...{% endif %}</span>
-        <span>₹{{ item['price'] }}</span>
+        <span class="product-name">{{ item['name'][:28] }}{% if item['name']|length > 28 %}...{% endif %}</span>
+        <span class="product-price">₹{{ item['price'] }}</span>
       </div>
       {% endfor %}
+      <div class="summary-divider"></div>
+      <div class="summary-sub-row"><span>Delivery</span><span style="color:var(--green);font-weight:600;">FREE</span></div>
       <div class="summary-total">
-        <span>Total</span>
-        <span>₹{{ total }}</span>
+        <span class="total-label">Total</span>
+        <span class="total-amount">₹{{ total }}</span>
       </div>
-      <button class="btn-checkout" onclick="window.location='/checkout'">✅ Checkout</button>
+      <button class="btn-checkout" onclick="window.location='/checkout'">
+        ✅ Proceed to Checkout
+      </button>
       <a href="/" class="btn-continue">← Continue Shopping</a>
+      <div class="secure-note">🔒 Safe & secure checkout</div>
     </div>
   </div>
 </div>
 
 {% else %}
 <div class="empty-cart">
-  <div style="font-size:4rem;margin-bottom:16px">🛒</div>
+  <span class="empty-icon">🛒</span>
   <h2>Your cart is empty!</h2>
-  <p>Add some amazing products to get started</p>
+  <p>Looks like you haven't added anything yet. Let's fix that!</p>
   <a href="/" class="btn-shop">🛍 Start Shopping</a>
 </div>
 {% endif %}
+
 </body>
 </html>

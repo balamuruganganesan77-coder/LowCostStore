@@ -6,99 +6,154 @@
 <title>{{ product['name'] }} - LowCost Store</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root{--primary:#ff6b35;--primary-dark:#e55a26;--dark:#0f0f0f;--dark2:#1a1a1a;--dark3:#252525;--card-bg:#1e1e1e;--text:#f0f0f0;--text-muted:#888;--accent:#ffd700;--green:#22c55e;--border:#2e2e2e;--red:#ef4444;}
-  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--primary:#ff6b35;--primary-dark:#e55a26;--primary-glow:rgba(255,107,53,0.2);--dark:#0a0a0a;--dark2:#141414;--dark3:#1f1f1f;--card-bg:#181818;--text:#f0f0f0;--text-muted:#777;--accent:#ffd700;--green:#22c55e;--border:#282828;--red:#ef4444;}
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
   body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;}
-  .navbar{position:sticky;top:0;z-index:100;background:rgba(15,15,15,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:20px;padding:14px 32px;}
-  .logo{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--primary);text-decoration:none;}
-  .logo span{color:var(--accent);}
-  .search-bar{flex:1;display:flex;max-width:500px;}
-  .search-bar input{flex:1;padding:10px 18px;background:var(--dark3);border:1px solid var(--border);border-right:none;border-radius:8px 0 0 8px;color:var(--text);outline:none;}
-  .search-bar input:focus{border-color:var(--primary);}
-  .search-bar button{padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:0 8px 8px 0;cursor:pointer;font-weight:600;}
-  .nav-links{display:flex;gap:8px;margin-left:auto;}
-  .nav-links a{color:var(--text-muted);text-decoration:none;padding:8px 14px;border-radius:6px;font-size:0.9rem;transition:all 0.2s;}
-  .nav-links a:hover{color:var(--text);background:var(--dark3);}
-  .cart-btn{background:var(--primary)!important;color:white!important;font-weight:600!important;position:relative;}
-  .cart-badge{position:absolute;top:-6px;right:-6px;background:var(--accent);color:var(--dark);border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
 
-  .breadcrumb{padding:14px 32px;font-size:0.82rem;color:var(--text-muted);}
-  .breadcrumb a{color:var(--primary);text-decoration:none;}
+  ::-webkit-scrollbar{width:5px;}
+  ::-webkit-scrollbar-track{background:var(--dark);}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+  /* NAVBAR */
+  .navbar{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:12px 28px;}
+  .logo{font-family:'Syne',sans-serif;font-size:1.45rem;font-weight:800;color:var(--primary);text-decoration:none;letter-spacing:-0.5px;}
+  .logo span{color:var(--accent);}
+  .search-bar{flex:1;display:flex;max-width:440px;}
+  .search-bar input{flex:1;padding:10px 14px;background:var(--dark3);border:1px solid var(--border);border-right:none;border-radius:10px 0 0 10px;color:var(--text);outline:none;transition:border-color 0.2s;font-family:'DM Sans',sans-serif;font-size:0.88rem;}
+  .search-bar input:focus{border-color:var(--primary);}
+  .search-bar button{padding:10px 16px;background:var(--primary);color:white;border:none;border-radius:0 10px 10px 0;cursor:pointer;font-weight:700;}
+  .nav-links{display:flex;gap:6px;margin-left:auto;}
+  .nav-links a{color:var(--text-muted);text-decoration:none;padding:8px 13px;border-radius:8px;font-size:0.85rem;transition:all 0.2s;}
+  .nav-links a:hover{color:var(--text);background:var(--dark3);}
+  .cart-btn{background:var(--primary)!important;color:white!important;font-weight:700!important;position:relative;}
+  .cart-badge{position:absolute;top:-7px;right:-7px;background:var(--accent);color:#000;border-radius:50%;width:19px;height:19px;font-size:0.62rem;font-weight:900;display:flex;align-items:center;justify-content:center;}
+
+  /* BREADCRUMB */
+  .breadcrumb{padding:14px 28px;font-size:0.8rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .breadcrumb a{color:var(--primary);text-decoration:none;transition:opacity 0.2s;}
+  .breadcrumb a:hover{opacity:0.8;}
+  .breadcrumb .sep{color:var(--border);}
 
   /* PRODUCT SECTION */
-  .product-section{display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:28px 32px;max-width:1100px;margin:0 auto;}
-  .product-img{width:100%;border-radius:16px;aspect-ratio:1;object-fit:cover;background:var(--dark3);}
-  .product-info{display:flex;flex-direction:column;gap:14px;padding-top:8px;}
-  .product-category{font-size:0.78rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--primary);}
-  .product-name{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1.2;}
-  .product-rating{display:flex;align-items:center;gap:8px;color:var(--accent);font-size:1rem;}
-  .product-rating span{color:var(--text-muted);font-size:0.85rem;}
-  .price-wrap{display:flex;align-items:center;gap:10px;}
-  .product-price{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--primary);}
-  .product-orig{font-size:1.2rem;color:var(--text-muted);text-decoration:line-through;}
-  .product-discount{font-size:0.85rem;font-weight:700;color:var(--green);background:rgba(34,197,94,0.15);padding:3px 10px;border-radius:6px;}
-  .product-desc{color:var(--text-muted);line-height:1.7;font-size:0.95rem;padding:16px;background:var(--dark2);border-radius:10px;border:1px solid var(--border);}
-  .product-actions{display:flex;gap:12px;flex-wrap:wrap;}
-  .btn-addcart{flex:1;padding:14px 24px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:1rem;font-weight:700;text-decoration:none;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;}
-  .btn-addcart:hover{background:var(--primary-dark);}
-  .btn-back{padding:14px 24px;background:var(--dark3);color:var(--text);border:1px solid var(--border);border-radius:10px;font-size:1rem;text-decoration:none;text-align:center;transition:all 0.2s;}
+  .product-section{display:grid;grid-template-columns:1fr 1fr;gap:44px;padding:20px 28px 32px;max-width:1060px;margin:0 auto;}
+
+  /* IMAGE SIDE */
+  .product-img-wrap{position:relative;border-radius:18px;overflow:hidden;background:var(--dark3);aspect-ratio:1;cursor:zoom-in;}
+  .product-img{width:100%;height:100%;object-fit:cover;transition:transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94);}
+  .product-img-wrap:hover .product-img{transform:scale(1.06);}
+  .img-badge{position:absolute;top:14px;left:14px;background:rgba(239,68,68,0.9);color:white;font-size:0.72rem;font-weight:800;padding:5px 12px;border-radius:8px;backdrop-filter:blur(4px);}
+
+  /* PRODUCT INFO */
+  .product-info{display:flex;flex-direction:column;gap:14px;padding-top:4px;}
+  .product-cat-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.25);color:var(--primary);font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:20px;width:fit-content;}
+  .product-name{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;line-height:1.15;letter-spacing:-0.5px;}
+  .product-rating{display:flex;align-items:center;gap:8px;}
+  .stars{color:var(--accent);font-size:1rem;letter-spacing:1px;}
+  .rating-text{font-size:0.84rem;color:var(--text-muted);}
+
+  /* PRICE */
+  .price-wrap{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .product-price{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--primary);letter-spacing:-1px;}
+  .product-orig{font-size:1.1rem;color:var(--text-muted);text-decoration:line-through;}
+  .product-discount-badge{font-size:0.82rem;font-weight:800;color:var(--green);background:rgba(34,197,94,0.12);padding:4px 10px;border-radius:6px;border:1px solid rgba(34,197,94,0.2);}
+
+  /* HIGHLIGHTS */
+  .highlights{display:flex;flex-wrap:wrap;gap:8px;}
+  .highlight-pill{padding:5px 12px;background:var(--dark3);border:1px solid var(--border);border-radius:8px;font-size:0.76rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;}
+
+  /* DESCRIPTION */
+  .product-desc{color:#aaa;line-height:1.75;font-size:0.9rem;padding:14px 16px;background:var(--dark2);border-radius:12px;border:1px solid var(--border);border-left:3px solid var(--primary);}
+
+  /* ACTIONS */
+  .product-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn-addcart{
+    flex:2;min-width:160px;padding:15px 20px;background:var(--primary);color:white;border:none;
+    border-radius:12px;font-size:0.95rem;font-weight:800;text-decoration:none;text-align:center;
+    cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
+    box-shadow:0 4px 20px var(--primary-glow);display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .btn-addcart:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 6px 28px rgba(255,107,53,0.35);}
+  .btn-addcart:active{transform:scale(0.98);}
+  .btn-back{
+    flex:1;min-width:100px;padding:15px 16px;background:var(--dark3);color:var(--text-muted);
+    border:1px solid var(--border);border-radius:12px;font-size:0.9rem;text-decoration:none;text-align:center;
+    transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:5px;
+  }
   .btn-back:hover{border-color:var(--primary);color:var(--primary);}
 
+  /* COD & DELIVERY */
+  .info-pills{display:flex;gap:8px;flex-wrap:wrap;}
+  .info-pill{flex:1;min-width:100px;padding:10px 12px;background:var(--dark3);border:1px solid var(--border);border-radius:10px;font-size:0.76rem;text-align:center;}
+  .info-pill .pip-icon{font-size:1.1rem;display:block;margin-bottom:3px;}
+  .info-pill .pip-label{color:var(--text-muted);}
+  .info-pill .pip-value{font-weight:700;color:var(--text);display:block;margin-top:1px;}
+
   /* REVIEWS SECTION */
-  .reviews-wrap{max-width:1100px;margin:0 auto;padding:0 32px 40px;}
-  .section-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+  .reviews-wrap{max-width:1060px;margin:0 auto;padding:0 28px 40px;}
+  .section-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
   .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
 
-  .review-stats{display:flex;align-items:center;gap:20px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:24px;}
+  /* REVIEW STATS */
+  .review-stats{display:flex;align-items:center;gap:20px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:20px;}
   .avg-score{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--accent);line-height:1;}
-  .avg-label{font-size:0.82rem;color:var(--text-muted);margin-top:4px;}
-  .total-reviews{font-size:0.85rem;color:var(--text-muted);}
+  .avg-label{font-size:0.78rem;color:var(--text-muted);margin-top:4px;}
+  .total-reviews{font-size:0.83rem;color:var(--text-muted);}
 
-  /* WRITE REVIEW FORM */
-  .review-form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;}
-  .review-form-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:16px;}
-  .star-select{display:flex;gap:8px;margin-bottom:16px;flex-direction:row-reverse;justify-content:flex-end;}
+  /* REVIEW FORM */
+  .review-form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px;}
+  .review-form-title{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:14px;}
+  .star-select{display:flex;gap:6px;margin-bottom:14px;flex-direction:row-reverse;justify-content:flex-end;}
   .star-select input{display:none;}
-  .star-select label{font-size:1.8rem;cursor:pointer;color:var(--dark3);transition:color 0.15s;}
+  .star-select label{font-size:1.9rem;cursor:pointer;color:#2a2a2a;transition:color 0.15s;}
   .star-select label:hover,.star-select label:hover~label,.star-select input:checked~label{color:var(--accent);}
-  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-  .form-group{display:flex;flex-direction:column;gap:6px;}
-  .form-group label{font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);}
-  .form-group input,.form-group textarea{padding:11px 14px;background:var(--dark3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.9rem;outline:none;transition:border-color 0.2s;font-family:'DM Sans',sans-serif;}
-  .form-group input:focus,.form-group textarea:focus{border-color:var(--primary);}
-  .form-group textarea{resize:none;height:80px;margin-top:0;}
-  .btn-submit-review{padding:11px 28px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .form-group{display:flex;flex-direction:column;gap:5px;}
+  .form-group label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-muted);}
+  .form-group input,.form-group textarea{padding:10px 12px;background:var(--dark3);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-size:0.88rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s;font-family:'DM Sans',sans-serif;}
+  .form-group input:focus,.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-glow);}
+  .form-group textarea{resize:none;height:75px;margin-bottom:12px;}
+  .btn-submit-review{padding:10px 24px;background:var(--primary);color:white;border:none;border-radius:9px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
   .btn-submit-review:hover{background:var(--primary-dark);}
-  .review-note{font-size:0.75rem;color:var(--text-muted);margin-top:8px;}
+  .review-note{font-size:0.73rem;color:var(--text-muted);margin-top:8px;}
 
   /* REVIEW CARDS */
-  .review-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px;transition:border-color 0.2s;}
-  .review-card:hover{border-color:var(--border);}
+  .review-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;transition:border-color 0.2s;}
+  .review-card:hover{border-color:rgba(255,107,53,0.3);}
   .review-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
-  .reviewer-name{font-weight:700;font-size:0.95rem;}
-  .reviewer-phone{font-size:0.75rem;color:var(--text-muted);margin-top:2px;}
-  .review-stars{color:var(--accent);font-size:1rem;letter-spacing:1px;}
-  .review-date{font-size:0.75rem;color:var(--text-muted);}
-  .review-comment{font-size:0.9rem;color:var(--text-muted);line-height:1.6;}
+  .reviewer-name{font-weight:700;font-size:0.92rem;}
+  .reviewer-phone{font-size:0.73rem;color:var(--text-muted);margin-top:2px;}
+  .review-stars{color:var(--accent);font-size:0.95rem;letter-spacing:1px;}
+  .review-date{font-size:0.73rem;color:var(--text-muted);margin-top:3px;}
+  .review-comment{font-size:0.87rem;color:#aaa;line-height:1.65;font-style:italic;}
+  .no-reviews{text-align:center;padding:28px;color:var(--text-muted);background:var(--card-bg);border:1px dashed var(--border);border-radius:12px;}
 
-  .no-reviews{text-align:center;padding:32px;color:var(--text-muted);background:var(--card-bg);border:1px dashed var(--border);border-radius:12px;}
-
-  /* REC GRID */
-  .rec-section{max-width:1100px;margin:0 auto;padding:0 32px 40px;}
-  .rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+  /* RECS */
+  .rec-section{max-width:1060px;margin:0 auto;padding:0 28px 44px;}
+  .rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;}
   .card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;display:flex;flex-direction:column;}
   .card:hover{transform:translateY(-4px);border-color:var(--primary);}
-  .card img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--dark3);}
-  .card-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:6px;}
-  .card-name{font-size:0.85rem;font-weight:500;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-  .card-price{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--primary);}
+  .card-img-wrap{overflow:hidden;aspect-ratio:1;}
+  .card img{width:100%;height:100%;object-fit:cover;background:var(--dark3);transition:transform 0.3s;}
+  .card:hover img{transform:scale(1.06);}
+  .card-body{padding:11px 12px;flex:1;display:flex;flex-direction:column;gap:5px;}
+  .card-name{font-size:0.82rem;font-weight:500;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#ccc;}
+  .card-price{font-family:'Syne',sans-serif;font-size:0.98rem;font-weight:700;color:var(--primary);}
   .card-actions{display:flex;gap:6px;margin-top:auto;}
-  .btn-sm-view{flex:1;padding:7px;background:var(--dark3);color:var(--text);border:1px solid var(--border);border-radius:7px;font-size:0.78rem;text-decoration:none;text-align:center;transition:all 0.2s;}
+  .btn-sm-view{flex:1;padding:7px;background:var(--dark3);color:var(--text-muted);border:1px solid var(--border);border-radius:7px;font-size:0.76rem;text-decoration:none;text-align:center;transition:all 0.2s;}
   .btn-sm-view:hover{border-color:var(--primary);color:var(--primary);}
-  .btn-sm-cart{flex:1;padding:7px;background:var(--primary);color:white;border:none;border-radius:7px;font-size:0.78rem;text-decoration:none;text-align:center;transition:background 0.2s;}
+  .btn-sm-cart{flex:1;padding:7px;background:var(--primary);color:white;border:none;border-radius:7px;font-size:0.76rem;text-decoration:none;text-align:center;transition:background 0.2s;}
   .btn-sm-cart:hover{background:var(--primary-dark);}
 
-  @media(max-width:700px){.product-section{grid-template-columns:1fr;gap:20px;padding:16px;}.reviews-wrap,.rec-section{padding:0 16px 32px;}.form-row{grid-template-columns:1fr;}.navbar{padding:12px 16px;flex-wrap:wrap;}}
+  @media(max-width:720px){
+    .product-section{grid-template-columns:1fr;gap:20px;padding:14px;}
+    .reviews-wrap,.rec-section{padding:0 14px 28px;}
+    .form-row{grid-template-columns:1fr;}
+    .navbar{padding:11px 14px;gap:10px;}
+    .nav-links a:not(.cart-btn){display:none;}
+    .breadcrumb{padding:12px 14px;}
+    .product-name{font-size:1.5rem;}
+    .product-price{font-size:1.9rem;}
+  }
 </style>
 </head>
 <body>
@@ -110,7 +165,7 @@
   </form>
   <div class="nav-links">
     <a href="/">Home</a>
-    <a href="/orders">My Orders</a>
+    <a href="/orders">Orders</a>
     <a href="/cart" class="cart-btn">🛒 Cart
       {% if cart_count > 0 %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
     </a>
@@ -118,29 +173,64 @@
 </nav>
 
 <div class="breadcrumb">
-  <a href="/">Home</a> › <a href="/?category={{ product['category'] }}">{{ product['category']|capitalize }}</a> › {{ product['name'] }}
+  <a href="/">Home</a>
+  <span class="sep">›</span>
+  <a href="/?category={{ product['category'] }}">{{ product['category']|capitalize }}</a>
+  <span class="sep">›</span>
+  <span style="color:var(--text-muted);">{{ product['name'][:40] }}{% if product['name']|length > 40 %}...{% endif %}</span>
 </div>
 
 <div class="product-section">
   <div>
-    <img class="product-img" src="{{ product['image_url'] }}" alt="{{ product['name'] }}" onerror="this.src='https://via.placeholder.com/400x400?text=No+Image'">
-  </div>
-  <div class="product-info">
-    <div class="product-category">{{ product['category']|upper }}</div>
-    <div class="product-name">{{ product['name'] }}</div>
-    <div class="product-rating">
-      ⭐
-      {% if avg_rating %}{{ avg_rating }} <span>({{ reviews|length }} reviews)</span>
-      {% else %}{{ product['rating'] }} <span>(No reviews yet)</span>{% endif %}
+    <div class="product-img-wrap">
+      {% if product['original_price'] and product['original_price'] > product['price'] %}
+      <div class="img-badge">{{ product['discount'] }}% OFF</div>
+      {% endif %}
+      <img class="product-img" src="{{ product['image_url'] }}" alt="{{ product['name'] }}"
+           onerror="this.src='https://via.placeholder.com/400x400/1a1a1a/555?text=No+Image'">
     </div>
+  </div>
+
+  <div class="product-info">
+    <div class="product-cat-badge">{{ product['category']|upper }}</div>
+    <div class="product-name">{{ product['name'] }}</div>
+
+    <div class="product-rating">
+      <span class="stars">⭐</span>
+      <span class="rating-text">
+        {% if avg_rating %}{{ avg_rating }} · {{ reviews|length }} review{{ 's' if reviews|length != 1 else '' }}
+        {% else %}{{ product['rating'] }} · No reviews yet{% endif %}
+      </span>
+    </div>
+
     <div class="price-wrap">
       <div class="product-price">₹{{ product['price'] }}</div>
       {% if product['original_price'] and product['original_price'] > 0 %}
       <div class="product-orig">₹{{ product['original_price'] }}</div>
-      <div class="product-discount">{{ product['discount'] }}% OFF</div>
+      <div class="product-discount-badge">{{ product['discount'] }}% OFF</div>
       {% endif %}
     </div>
-    <div class="product-desc">📦 {{ product['description'] }}</div>
+
+    <div class="info-pills">
+      <div class="info-pill">
+        <span class="pip-icon">💵</span>
+        <span class="pip-label">Payment</span>
+        <span class="pip-value">Cash on Delivery</span>
+      </div>
+      <div class="info-pill">
+        <span class="pip-icon">🚚</span>
+        <span class="pip-label">Delivery</span>
+        <span class="pip-value">3-5 Days</span>
+      </div>
+      <div class="info-pill">
+        <span class="pip-icon">✅</span>
+        <span class="pip-label">Shipping</span>
+        <span class="pip-value">FREE</span>
+      </div>
+    </div>
+
+    <div class="product-desc">{{ product['description'] }}</div>
+
     <div class="product-actions">
       <a href="/addcart/{{ product['id'] }}" class="btn-addcart">🛒 Add to Cart</a>
       <a href="/" class="btn-back">← Back</a>
@@ -148,7 +238,7 @@
   </div>
 </div>
 
-<!-- REVIEWS SECTION -->
+<!-- REVIEWS -->
 <div class="reviews-wrap">
   <div class="section-title">Customer Reviews</div>
 
@@ -162,14 +252,11 @@
   </div>
   {% endif %}
 
-  <!-- WRITE REVIEW FORM -->
   <div class="review-form-card">
     <div class="review-form-title">✍️ Write a Review</div>
     <form method="POST" action="/review/{{ product['id'] }}">
-
-      <!-- STAR RATING -->
-      <div style="margin-bottom:14px;">
-        <div style="font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:8px;">Your Rating</div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-muted);margin-bottom:8px;">Your Rating</div>
         <div class="star-select">
           <input type="radio" name="rating" id="s5" value="5"><label for="s5">★</label>
           <input type="radio" name="rating" id="s4" value="4"><label for="s4">★</label>
@@ -178,7 +265,6 @@
           <input type="radio" name="rating" id="s1" value="1"><label for="s1">★</label>
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label>Your Name</label>
@@ -189,18 +275,15 @@
           <input type="tel" name="phone" placeholder="+91 98765 43210" required>
         </div>
       </div>
-
-      <div class="form-group" style="margin-bottom:14px;">
+      <div class="form-group">
         <label>Your Review</label>
         <textarea name="comment" placeholder="Share your experience with this product..." required></textarea>
       </div>
-
       <button type="submit" class="btn-submit-review">Submit Review ⭐</button>
-      <div class="review-note">* One review per phone number per product. You can update your review anytime.</div>
+      <div class="review-note">* One review per phone number per product.</div>
     </form>
   </div>
 
-  <!-- SHOW ALL REVIEWS -->
   {% if reviews %}
     {% for review in reviews %}
     <div class="review-card">
@@ -218,9 +301,7 @@
     </div>
     {% endfor %}
   {% else %}
-  <div class="no-reviews">
-    😶 No reviews yet — Be the first to review this product!
-  </div>
+  <div class="no-reviews">😶 No reviews yet — Be the first to review this product!</div>
   {% endif %}
 </div>
 
@@ -230,7 +311,9 @@
   <div class="rec-grid">
     {% for r in rec %}
     <div class="card">
-      <img src="{{ r['image_url'] }}" alt="{{ r['name'] }}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+      <div class="card-img-wrap">
+        <img src="{{ r['image_url'] }}" alt="{{ r['name'] }}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300/1a1a1a/555?text=No+Image'">
+      </div>
       <div class="card-body">
         <div class="card-name">{{ r['name'] }}</div>
         <div class="card-price">₹{{ r['price'] }}</div>
